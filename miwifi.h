@@ -1,12 +1,17 @@
 
-
-char ssid[30] = "MY_WIFI";
-char password[20] = "12341234";
+int ssid_con=0;
+char ssid[30] = "MOVISTAR_EDE0";
+char password[20] = "Trujillo31";
+char ssidrover[30] = "roverdiego";
+char passwordrover[20] = "12341234";
 
 int en_menu_wifi = 0;
 int pos_menu_wifi = 0;
 int main_menu_wifi = 0;
 const int max_menu_wifi = 10;
+
+float tempDHT11 = 0.0;
+float humDHT11 = 0.0;
 
 String menu_wifi[max_menu_wifi] =  {"", "", "", "", "", "", "", "", "", ""};
 
@@ -15,7 +20,7 @@ void leer_wifi_file(fs::FS& fs, const char* path)
   File file = fs.open(path);
   if (file) 
     {
-    Serial.println("Abierto fichero datos WiFi");
+    Serial.println("Leyendo fichero datos WiFi");
     }
   else
     {
@@ -25,11 +30,20 @@ void leer_wifi_file(fs::FS& fs, const char* path)
   String auxS = file.readString();
   String auxSSID = auxS.substring(0,auxS.indexOf("\n")-1);
   String auxPASS = auxS.substring(auxS.indexOf("\n")+1,auxS.length()-2);
+  String auxSSIDrover = auxS.substring(0,auxS.indexOf("\n")-1);
+  String auxPASSrover = auxS.substring(auxS.indexOf("\n")+1,auxS.length()-2);
   file.close();
+  auxSSID="MOVISTAR_EDE0";
+  auxPASS="Trujillo31";
+  auxSSIDrover="roverdiego";
+  auxPASSrover="12341234";
+
   auxSSID.toCharArray(ssid,30);
   auxPASS.toCharArray(password,20);
-  Serial.print("SSID:-");Serial.print(ssid);Serial.println("-");
-  Serial.print("PASS:-");Serial.print(password);Serial.println("-");
+  auxSSIDrover.toCharArray(ssidrover,30);
+  auxPASSrover.toCharArray(passwordrover,20);
+  Serial.print("SSID: ");Serial.println(ssid);
+  Serial.print("PASS: ");Serial.println(password);
 }
 
 void guardar_wifi()
@@ -52,21 +66,26 @@ void iniciar_wifi()
 void conectar_wifi(char* ssid, char* password)
 {
   limpiar_pantalla(true);
+  Serial.print("Conectando a ");  Serial.println(ssid);
+  Serial.print("con password ");  Serial.println(password);
   tft.print("Conectando a ");  tft.println(ssid);
   tft.print("con password ");  tft.println(password);
   tft.println("WiFi.begin");
+  int retry = 15;
   WiFi.begin(ssid, password);
-  int retry = 10;
   while ((WiFi.status() != WL_CONNECTED) && (retry>0))
     {
     retry--;
     tft.print(".");  
-    WiFi.begin(ssid, password);
+    //WiFi.begin(ssid, password);
     }
   if (WiFi.status() == WL_CONNECTED)
     {
-    timeClient.begin();
-    timeClient.update();
+    tft.println("Conectado");
+    Serial.println("Conectado");
+    delay(1000);
+    //timeClient.begin();
+    //timeClient.update();
     }
 }
 
@@ -145,7 +164,7 @@ void loop_wifi()
       auxS.toCharArray(password,15);
       if (auxS.length()>0)    // guardar y conectar
         {
-       guardar_wifi();
+        guardar_wifi();
         conectar_wifi(ssid, password);
         en_menu = 1;
         pos_menu = 0;

@@ -5,6 +5,7 @@
 #include "LIS3DHTR.h"
 #include "rpcWiFi.h"
 #include <HTTPClient.h>
+#include <WebSocketsClient.h>
 #include <Seeed_Arduino_FS.h>
 #include "Arduino_JSON.h"
 #include <NTPClient.h>
@@ -46,18 +47,20 @@ void iniciar_sistema()
   init_filesystem();
   iniciar_pantalla();
   iniciar_wifi();
+  //conectar_wifi(ssid, password);
   iniciar_acelerometro();
   iniciar_botones();
   iniciar_joystick();
   iniciar_sensorluz();
   iniciar_microfono();
   iniciar_buzzer();
+  //iniciar_control_rover();
 }
 
-const int max_menu = 9;
+const int max_menu = 11;
 
 const String menu_0[max_menu] = 
-  {"Conectar a WiFi", "Buscar WiFi", "Mostrar sistema", "Control Rover", "Acelerometro", "Control antena", "Mini Chat", "Tetris", "Reloj"};
+  {"Conectar Internet", "Conectar Rover", "---", "Buscar WiFi", "Mostrar sistema", "Control Rover", "Acelerometro", "Control antena", "Mini Chat", "Tetris", "Reloj"};
 
 int main_menu = 0;
 int sub_menu = 0;
@@ -65,13 +68,15 @@ int sub_menu = 0;
 void mostrar_menu(int nivel, int pos_y, String titulo)
 {
   limpiar_pantalla(false);
-  tft.setTextColor(TFT_YELLOW); 
-  tft.setCursor(10, 10, 4);  tft.print(main_menu); tft.print("  "); tft.println(titulo);  
+  //tft.setTextColor(TFT_YELLOW); 
+  //tft.setCursor(10, 10, 4);  tft.print(main_menu); tft.print("  "); tft.println(titulo);  
   tft.setTextColor(TFT_WHITE); 
-  tft.setCursor(10, 40, 2);  
+  tft.setCursor(10, 0, 2);  
   if (WiFi.status() == WL_CONNECTED)
-    { tft.print("Conectado a WiFi: "); tft.println(ssid); 
-    }
+    if (ssid_con = 0)
+      { tft.print("Conectado a WiFi: "); tft.println(ssid); }
+    else
+      { tft.print("Conectado a WiFi: "); tft.println(ssidrover); }
   else
     tft.println("Para conectar WiFi pulse boton A al arrancar");  
   en_menu = 1;
@@ -93,55 +98,76 @@ void mostrar_menu(int nivel, int pos_y, String titulo)
 void cambiar_menu()
 {
   if (main_menu == 0)
-    mostrar_menu(0, 60, "Menu principal");
+    mostrar_menu(0, 20, "Menu principal");
 }
 
 void ejecutar_accion()
 {
   if (main_menu == 0) 
-    {
+    {    
     if (pos_menu == 0)
       {
       en_menu = 0; 
+      ssid_con = 0;
       conectar_wifi(ssid, password);
-      mostrar_menu(0, 60, "Menu principal");
+      mostrar_menu(0, 20, "Menu principal");
       }
-    else if (pos_menu == 1)
+    if (pos_menu == 1)
+      {
+      en_menu = 0; 
+      ssid_con = 1;
+      conectar_wifi(ssidrover, passwordrover);
+      mostrar_menu(0, 20, "Menu principal");
+      }
+    if (pos_menu == 2)
+      {
+      en_menu = 0; 
+      conectar_wifi(ssid, password);
+      mostrar_menu(0, 20, "Menu principal");
+      }
+
+    if (pos_menu == 2)
+      {
+      //en_menu = 0; 
+
+      mostrar_menu(0, 20, "Menu principal");
+      }
+    else if (pos_menu == 3)
       {
       en_menu = 0; 
       buscar_wifi();
       }
-    else if (pos_menu == 2)
+    else if (pos_menu == 4)
       {
       en_menu = 0; 
       mostrar_sistema(true);
       }
-    else if (pos_menu == 3)    // ver ficheros
+    else if (pos_menu == 5)    // ver ficheros
       {
       en_menu = 0; 
       control_rover();
       }
-    else if (pos_menu == 4)
+    else if (pos_menu == 6)
       {
       en_menu = 0; 
       mostrar_acelerometro();
       }
-    else if (pos_menu == 5)
+    else if (pos_menu == 7)
       {
       en_menu = 0; 
       control_antena();
       }
-    else if (pos_menu == 6)
+    else if (pos_menu == 8)
       {
       en_menu = 0; 
       minichat();
       }
-    else if (pos_menu == 7)
+    else if (pos_menu == 9)
       {
       en_menu = 0; 
       setup_tetris();
       }
-    else if (pos_menu == 8)
+    else if (pos_menu == 10)
       {
       en_menu = 0; 
       actualiza_hora();
@@ -156,13 +182,14 @@ void setup(void) {
   init_filesystem();
   if (!BUTTON_A)
     conectar_wifi(ssid, password);
-  mostrar_menu(0, 60, "Menu principal");
+  mostrar_menu(0, 20, "Menu principal");
+  /*
   Serial.println(WIO_5S_UP);
   Serial.println(WIO_5S_DOWN);
   Serial.println(WIO_5S_LEFT);
   Serial.println(WIO_5S_RIGHT);
   Serial.println(WIO_5S_PRESS);
-
+  */
 }
 
 //====================================================================
@@ -226,15 +253,15 @@ void display_hora()
 void cosas_cada_segundo()
 {
   time1 = millis();
-  hh = timeClient.getHours() + 1;
-  mm = timeClient.getMinutes();
-  ss = timeClient.getSeconds();
   display_hora();
 }
 
 void cosas_cada_segundo60()
 {
   time60 = millis();
+  hh = timeClient.getHours() + 1;
+  mm = timeClient.getMinutes();
+  ss = timeClient.getSeconds();
   actualiza_hora();
 }
 
