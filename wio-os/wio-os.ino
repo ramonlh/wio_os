@@ -54,7 +54,7 @@ void iniciar_sistema()
   iniciar_sensorluz();
   iniciar_microfono();
   iniciar_buzzer();
-  iniciar_control_rover();
+  //iniciar_control_rover();
 }
 
 const int max_menu = 11;

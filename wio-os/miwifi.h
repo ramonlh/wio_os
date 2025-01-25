@@ -10,6 +10,9 @@ int pos_menu_wifi = 0;
 int main_menu_wifi = 0;
 const int max_menu_wifi = 10;
 
+float tempDHT11 = 0.0;
+float humDHT11 = 0.0;
+
 String menu_wifi[max_menu_wifi] =  {"", "", "", "", "", "", "", "", "", ""};
 
 void leer_wifi_file(fs::FS& fs, const char* path) 
@@ -63,21 +66,26 @@ void iniciar_wifi()
 void conectar_wifi(char* ssid, char* password)
 {
   limpiar_pantalla(true);
+  Serial.print("Conectando a ");  Serial.println(ssid);
+  Serial.print("con password ");  Serial.println(password);
   tft.print("Conectando a ");  tft.println(ssid);
   tft.print("con password ");  tft.println(password);
   tft.println("WiFi.begin");
+  int retry = 15;
   WiFi.begin(ssid, password);
-  int retry = 10;
   while ((WiFi.status() != WL_CONNECTED) && (retry>0))
     {
     retry--;
     tft.print(".");  
-    WiFi.begin("MOVISTAR_EDE0", "Trujillo31");
+    //WiFi.begin(ssid, password);
     }
   if (WiFi.status() == WL_CONNECTED)
     {
-    timeClient.begin();
-    timeClient.update();
+    tft.println("Conectado");
+    Serial.println("Conectado");
+    delay(1000);
+    //timeClient.begin();
+    //timeClient.update();
     }
 }
 
