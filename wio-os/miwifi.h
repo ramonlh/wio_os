@@ -1,7 +1,8 @@
 
 int ssid_con=0;
-char ssid[30] = "TU_WIFI";
-char password[20] = "TU_PASSWORD_WIFI";
+#include "secrets.h"
+char ssid[30] = SECRET_WIFI_SSID;
+char password[20] = SECRET_WIFI_PASSWORD;
 char ssidrover[30] = "roverdiego";
 char passwordrover[20] = "12341234";
 
@@ -33,8 +34,8 @@ void leer_wifi_file(fs::FS& fs, const char* path)
   String auxSSIDrover = auxS.substring(0,auxS.indexOf("\n")-1);
   String auxPASSrover = auxS.substring(auxS.indexOf("\n")+1,auxS.length()-2);
   file.close();
-  auxSSID="TU_WIFI";
-  auxPASS="TU_PASSWORD_WIFI";
+  auxSSID=SECRET_WIFI_SSID;
+  auxPASS=SECRET_WIFI_PASSWORD;
   auxSSIDrover="roverdiego";
   auxPASSrover="12341234";
 
